@@ -1,15 +1,15 @@
 from collections import defaultdict
 from auxiliary_functions import *
 
-
 data_dict = defaultdict(set)
 sources_dict = {}
-sentences_list = []
+
+with open("file.txt") as file:
+    sentences_list = file.read().split("\n")
+
 
 def init():
-    global sentences_list
-    with open("about.txt") as file:
-        sentences_list = file.read().split("\n")
+
     for i in range(len(sentences_list)):
         for j in range(len(sentences_list[i])):
             for k in range(j+1, len(sentences_list[i])+1):
@@ -27,5 +27,9 @@ def init():
             sentences.sort()
             data_dict[prefix] = set([sentences_list.index(sentence) for sentence in sentences][:5])
 
-init()
-print(data_dict)
+
+def get_offset(str, substr):
+    return str.find(substr)
+
+def get_source(index):
+    return sources_dict[index]
