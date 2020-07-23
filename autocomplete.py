@@ -15,7 +15,7 @@ def replace_character(prefix, on_top, results_indexes):
                 score = 5 - i if i < 5 else 1
                 for j in indexes:
                     if j not in results_indexes:
-                        results.append({"sentence": j, "source": get_source(j), "offset": get_offset(get_sentences_list()[j], corrected_prefix), "score": len(prefix)*2 - score})
+                        results.append({"sentence": j, "source": get_source(j), "offset": get_offset(j), "score": len(prefix)*2 - score})
                         results_indexes.append(j)
                 break
     return results[:on_top]
@@ -33,13 +33,13 @@ def delete_char(prefix, on_top, results_indexes):
                 score = 10 - 2*i if i < 4 else 2
                 for j in indexes:
                     if j not in results_indexes:
-                        results.append({"sentence": j, "source": get_source(j), "offset": get_offset(sentences_list[j], corrected_prefix), "score": len(prefix)*2 - score})
+                        results.append({"sentence": j, "source": get_source(j), "offset": get_offset(j), "score": len(prefix)*2 - score})
                         results_indexes.append(j)
                 break
     return results[:on_top]
 
 
-def insert_char(prefix, on_top, results_indexes):
+def add_char(prefix, on_top, results_indexes):
     results = []
     for i in range(len(prefix)-1, -1, -1):
         corrected_prefix = prefix[:i] + prefix[i+1:]
@@ -48,7 +48,7 @@ def insert_char(prefix, on_top, results_indexes):
             score = 10 - 2*i if i < 4 else 2
             for j in indexes:
                 if j not in results_indexes:
-                    results.append({"sentence": j, "source": get_source(j), "offset": get_offset(sentences_list[j], corrected_prefix), "score": len(prefix)*2 - score})
+                    results.append({"sentence": j, "source": get_source(j), "offset": get_offset(j), "score": len(prefix)*2 - score})
                     results_indexes.append(j)
             break
     return results[:on_top]
@@ -57,10 +57,9 @@ def insert_char(prefix, on_top, results_indexes):
 def fix_word(prefix, on_top, results_indexes):
     temp_results_indexes = [index for index in results_indexes]
     change_list = replace_character(prefix, on_top, temp_results_indexes)
-    insert_list = insert_char(prefix, on_top, temp_results_indexes)
+    insert_list = add_char(prefix, on_top, temp_results_indexes)
     delete_list = delete_char(prefix, on_top, temp_results_indexes)
     correction_list = sorted(change_list + insert_list + delete_list, key=lambda k: k["score"], reverse=True)
-    # correction_list = sorted(correction_list, key=lambda k: k["score"], reverse=True)
     correction_list = correction_list[:on_top]
     return correction_list
 
@@ -68,13 +67,13 @@ def fix_word(prefix, on_top, results_indexes):
 def get_best_k_completions(prefix):
     count_characters = len(prefix)
     prefix = ignore_delimiters(prefix)
-    results_indexes = data_dict[prefix]
+    results_indexes = list(data_dict[prefix])
     completed_sentences = [get_sentences_list()[index] for index in results_indexes]
 
     best_completion = []
 
     for i in range(len(results_indexes)):
-        best_completion.append(AutoCompleteData(completed_sentences[i], get_source(get_sentences_list().index(completed_sentences[i])), get_offset(completed_sentences[i],prefix), count_characters*2))
+        best_completion.append(AutoCompleteData(completed_sentences[i], get_source(get_sentences_list().index(completed_sentences[i])), get_offset(results_indexes[i]), count_characters*2))
 
     results_dict = fix_word(prefix, 5 - len(results_indexes), results_indexes)
     for result in results_dict:
