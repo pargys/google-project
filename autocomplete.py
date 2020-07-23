@@ -15,7 +15,7 @@ def replace_character(prefix, on_top, results_indexes):
                 score = 5 - i if i < 5 else 1
                 for j in indexes:
                     if j not in results_indexes:
-                        results.append({"sentence": j, "source": get_source(j), "offset": get_offset(sentences_list[j], corrected_prefix), "score": len(prefix)*2 - score})
+                        results.append({"sentence": j, "source": get_source(j), "offset": get_offset(get_sentences_list()[j], corrected_prefix), "score": len(prefix)*2 - score})
                         results_indexes.append(j)
                 break
     return results[:on_top]
@@ -69,16 +69,16 @@ def get_best_k_completions(prefix):
     count_characters = len(prefix)
     prefix = ignore_delimiters(prefix)
     results_indexes = data_dict[prefix]
-    completed_sentences = [sentences_list[index] for index in results_indexes]
+    completed_sentences = [get_sentences_list()[index] for index in results_indexes]
 
     best_completion = []
 
     for i in range(len(results_indexes)):
-        best_completion.append(AutoCompleteData(completed_sentences[i], get_source(sentences_list.index(completed_sentences[i])), get_offset(completed_sentences[i],prefix), count_characters*2))
+        best_completion.append(AutoCompleteData(completed_sentences[i], get_source(get_sentences_list().index(completed_sentences[i])), get_offset(completed_sentences[i],prefix), count_characters*2))
 
     results_dict = fix_word(prefix, 5 - len(results_indexes), results_indexes)
     for result in results_dict:
-        best_completion.append(AutoCompleteData(sentences_list[result["sentence"]], result["source"], result["offset"], result["score"]))
+        best_completion.append(AutoCompleteData(get_sentences_list()[result["sentence"]], result["source"], result["offset"], result["score"]))
 
     return best_completion
 

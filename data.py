@@ -3,12 +3,15 @@ from auxiliary_functions import *
 
 data_dict = defaultdict(set)
 sources_dict = {}
-
-with open("file.txt") as file:
-    sentences_list = file.read().split("\n")
+offset_dict = {}
+data_sources_dict = {}
+sentences_list = []
 
 
 def init():
+    with open("file.txt") as file:
+        global sentences_list
+        sentences_list = file.read().split("\n")
 
     for i in range(len(sentences_list)):
         for j in range(len(sentences_list[i])):
@@ -18,15 +21,16 @@ def init():
 
     data_dict.pop("")
 
-    for i in range(len(sentences_list)):
-        sources_dict[i] = "file.txt"
-
     for prefix in data_dict.keys():
         if len(data_dict[prefix]) > 5:
             sentences = [sentences_list[index] for index in data_dict[prefix]]
             sentences.sort()
             data_dict[prefix] = set([sentences_list.index(sentence) for sentence in sentences][:5])
 
+    sources_dict[0] = "file.txt"
+
+def get_sentences_list():
+    return sentences_list
 
 def get_offset(str, substr):
     return str.find(substr)
